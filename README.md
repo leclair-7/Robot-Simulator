@@ -8,11 +8,11 @@
 - [ ] Read 2D mapping paper
 - [x] Make the ball controllable by arrow keys
 - [ ] Learn keras basics 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
+- [ ] Maybe make it 3D and do A* 3D
+- [ ] Practice a few common algorithms
+- [ ] Get odometry on motors
+- [ ] Apply self driving car concepts to it, localization?!
+- [ ] Finish Al's book because it's that good
 
 * Run A*
 * put collision detection in
@@ -23,7 +23,7 @@
 1. algs for a future robot since I always get stopped running out of parts
 
 [GitHub](http://github.com)
-[markdown Link](https://guides.github.com/features/mastering-markdown/)
+[Markdown Link](https://guides.github.com/features/mastering-markdown/)
 
 From Jordan Peterson:
 > When you educate someone, you teach them how to use language to arm them, straighten them out, organize them, elevate them and you ennoble them, and then they're not misshapen half-carved blocks of humanity – people that can stand up, stand around and maneuver through the world, contribute properly to the community and keep the world oriented between chaos and order.
