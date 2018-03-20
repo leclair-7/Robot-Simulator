@@ -13,6 +13,7 @@
 - [ ] Get odometry on motors
 - [ ] Apply self driving car concepts to it, localization?!
 - [ ] Finish Al's book because it's that good
+- [ ] Make a mapping between where to put shapes on grid and a grid to run A*
 
 * Run A*
 * put collision detection in
