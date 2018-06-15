@@ -17,10 +17,10 @@ from pprint import pprint
 import numpy as np
 import random
 
-FPS = 8 # frames per second setting
+FPS = 20 # frames per second setting
 fpsClock = pygame.time.Clock()
 
-width,height = 500, 500
+width,height = 800, 800
 DISPLAYSURF = pygame.display.set_mode((width, height), 0, 32)
 pygame.display.set_caption('Swarm with Balls')
 
@@ -30,78 +30,79 @@ class aBox:
     '''
     def __init__(self):
         inc = 40
-        self.x   = width/2 - inc 
+        self.x   = width/9 - inc 
         self.y   = self.x
+        self.w,self.h = 250,250
     
-    def draw_aBox(self):
-        pygame.draw.rect(DISPLAYSURF, BLACK, ( self.x, self.y, 80, 80) )
+    def render(self):
+        pygame.draw.rect(DISPLAYSURF, BLACK, ( self.x, self.y, self.w, self.h) )
 
     def get_pos(self):
-        return (self.x, self.y, 80, 80 )
+        return self.x, self.y, self.w,self.h
 
 
 class Agent:
     '''
     This is going to be an agent in the swarm
 
-    width // gridSize
+    Squares - because I don't know simple collision detection with circles
+        - we're into swarm algorithms, not games, bucko
     '''
     def __init__(self):
         self.xpos = random.randint(5,15)
         self.ypos = random.randint(5,15)
-
-        self.centerx = []
-        self.centery = []
         
-        self.cx = 0
-        self.cy = 0
+        self.velocity = 5
+        self.thickness = 10
+        
 
-        increment = width // gridSize
-
-        prevCoordx = 4
-        for i in range(0,width , increment):   
-            self.centerx.append((prevCoordx + increment//2 ) )
-            prevCoordx += increment
-        prevCoordy = 4
-        for i in range(0,height, increment):
-            self.centery.append(prevCoordy + (increment)//2 )
-            prevCoordy += increment
-
-    def showThis(self):
-        #print((self.xpos,self.ypos))    
-        pygame.draw.circle(DISPLAYSURF, RED, (self.xpos,self.ypos), width // gridSize // 3 )
-    def move(self, toAvoid):
-        theMove = random.randint( 0, 3 )
-
+    def render(self):
+        #print((self.xpos,self.ypos))
+        pygame.draw.rect(DISPLAYSURF, RED, ( self.xpos, self.ypos, self.thickness, self.thickness) )    
+        #pygame.draw.circle(DISPLAYSURF, RED, (self.xpos,self.ypos), 10 )
+    
+    def collides(self,maybe_xpos, maybe_ypos, toAvoid):
+        ####### Collision Avoidance (because I havn't done it yet) ############
         x,y,w,h = toAvoid
+        if maybe_xpos > x and maybe_xpos < x + w or maybe_xpos + self.thickness > x and maybe_xpos + self.thickness < x+w:
+            if maybe_ypos > y and maybe_ypos < y + h or maybe_ypos + self.thickness > y and maybe_ypos + self.thickness < y+h:
+                return True
         
+        ###### Phew no collisions ############################################
+        return False
+
+    def move(self, toAvoid):
+
+        theMove = random.randint( 0, 3 )
+        
+        x,y,w,h = toAvoid      
+
         if theMove == 0:
-            if self.cx == len(self.centerx)-1:
-                self.cx = self.cx
-            else:                
-                self.cx += 1
+            if self.xpos == width-1:
+                self.xpos = self.xpos
+            else:
+                if self.collides(self.xpos + self.velocity, self.ypos, toAvoid) == False:
+                    self.xpos += self.velocity
         elif theMove == 1:
-            if self.cy == len(self.centery)-1:
+            if self.ypos == height-1:
                 asdfads=9
             else:
-                self.cy += 1
+                if self.collides(self.xpos, self.ypos + self.velocity, toAvoid) == False:
+                    self.ypos += self.velocity
         elif theMove == 2:
-            if self.cx == len(self.centerx)-1:
-                self.cx=self.cx
-            elif self.cy == len(self.centery)-1:
-                self.cy=self.cy
+            if self.ypos == width-1:
+                self.xpos=self.xpos
+            elif self.ypos == height - 1:
+                self.ypos=self.ypos
             else:
-                self.cx += 1
-                self.cy += 1
-        else:
-            pass
-        self.xpos = self.centerx[self.cx]
-        self.ypos = self.centery[self.cy]
+                if self.collides(self.xpos + self.velocity, self.ypos + self.velocity, toAvoid) == False:
+                    self.xpos += self.velocity
+                    self.ypos += self.velocity        
 
     def get_pos(self):
-        return self.cy
+        return self.ypos
 
-gridSize = 25
+
 
 '''
     cx, cy 
@@ -117,48 +118,14 @@ box = aBox()
 while True: # the main game loop
     
     DISPLAYSURF.fill(WHITE)   
-    box.draw_aBox()
+    box.render()
 
     pos = box.get_pos()
     x,y,w,h = pos
 
     for i in things:
         i.move(pos) 
-        i.showThis()   
+        i.render()   
     
     pygame.display.update()
     fpsClock.tick(FPS)
-
-
-def humanControls():
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            quitFunc()
-        elif event.type == pygame.KEYDOWN:
-
-            if event.key == pygame.K_x:
-                quitFunc()
-
-            elif event.key == pygame.K_UP:
-                if cy == 0:
-                    pass
-                else:
-                    cy -= 1
-
-            elif event.key == pygame.K_DOWN:
-                if cy == len(centery)-1:
-                    pass
-                else:
-                    cy += 1
-
-            elif event.key == pygame.K_LEFT:
-                if cx == 0:
-                    pass
-                else:
-                    cx -= 1
-
-            elif event.key == pygame.K_RIGHT:
-                if cx == len(centerx)-1:
-                    pass
-                else:
-                    cx += 1
