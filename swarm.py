@@ -10,12 +10,17 @@ With that in mind, lets see it in pygame
 
 import pygame, sys
 from pygame.locals import *
-pygame.init()
-from ArtPieUtils import *
-from A_star import search
-from pprint import pprint
 import numpy as np
 import random
+from math import sqrt
+
+pygame.init()
+
+BLACK = (  0,   0,   0)
+WHITE = (255, 255, 255)
+RED   = (255,   0,   0)
+GREEN = (  0, 255,   0)
+BLUE  = (  0,   0, 255)
 
 FPS = 20 # frames per second setting
 fpsClock = pygame.time.Clock()
@@ -49,17 +54,16 @@ class Agent:
         - we're into swarm algorithms, not games, bucko
     '''
     def __init__(self):
-        self.xpos = random.randint(5,15)
-        self.ypos = random.randint(5,15)
+        self.xpos = random.randint(5,45)
+        self.ypos = random.randint(5,45)
         
         self.velocity = 5
         self.thickness = 10
-        
+        self.center = sqrt((self.xpos + self.thickness/2)**2 + (self.ypos + self.thickness)**2)
 
     def render(self):
-        #print((self.xpos,self.ypos))
         pygame.draw.rect(DISPLAYSURF, RED, ( self.xpos, self.ypos, self.thickness, self.thickness) )    
-        #pygame.draw.circle(DISPLAYSURF, RED, (self.xpos,self.ypos), 10 )
+        
     
     def collides(self,maybe_xpos, maybe_ypos, toAvoid):
         ####### Collision Avoidance (because I havn't done it yet) ############
@@ -98,34 +102,87 @@ class Agent:
                 if self.collides(self.xpos + self.velocity, self.ypos + self.velocity, toAvoid) == False:
                     self.xpos += self.velocity
                     self.ypos += self.velocity        
+        self.center = sqrt((self.xpos + self.thickness/2)**2 + (self.ypos + self.thickness)**2)
 
     def get_pos(self):
-        return self.ypos
+        return (self.xpos, self.ypos)
 
 
+class Squirrel:
 
+    def __init__(self,name):
+        self.x=random.randint(10,25)
+        self.y=random.randint(10,25)
+        self.image = pygame.image.load(name)
+        self.rect = self.image.get_rect()
+
+    def render(self):
+        DISPLAYSURF.blit(self.image, (self.x,self.y))
+
+# Define the bullet class to create bullets          
+class Dude:
+
+    def __init__(self,x,y,name):
+        self.x = x + 23
+        self.y = y
+        self.image = pygame.image.load(name)
+        self.rect = self.image.get_rect()
+    def is_collided_with(self, sprite):
+        return self.rect.colliderect(sprite.rect)
+    def render(self):
+        DISPLAYSURF.blit(self.image, (self.x, self.y))
+    def move(self,x,y):
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
+        #self.rect = self.bullet.get_rect()
 '''
     cx, cy 
     These are indices of centerx and centery
     Circle x-position, and yposition
 '''
+s = Squirrel("squirrel.png")
+b = Dude(450,450,"boy.png")
+
+
 things = []
-for i in range(5):
+for i in range(10):
     thing = Agent()
     things.append(thing)
 box = aBox()
 
+
+mousex = 450
+mousey = 450
+
 while True: # the main game loop
     
     DISPLAYSURF.fill(WHITE)   
-    box.render()
-
-    pos = box.get_pos()
-    x,y,w,h = pos
-
-    for i in things:
-        i.move(pos) 
-        i.render()   
     
+    box.render()
+    b.move(mousex, mousey)
+    b.render()
+    s.render()
+
+    if b.is_collided_with(s):
+
+        pos = box.get_pos()
+        x,y,w,h = pos
+
+        for i in things:
+            i.move(pos) 
+            i.render()   
+    
+    for event in pygame.event.get(): # event handling loop
+        if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+            pygame.quit()
+            sys.exit()
+        elif event.type == MOUSEMOTION:
+            mousex, mousey = event.pos
+        elif event.type == MOUSEBUTTONUP:
+            mousex, mousey = event.pos
+            mouseClicked = True
+
     pygame.display.update()
     fpsClock.tick(FPS)
